@@ -22,8 +22,7 @@ path = "src/main.rs"
 # ── SEL Core (canonical JSON + SHA-256) ──────────────────────────────
 # نستخدم sel-common مباشرة لأنه يحتوي الـ primitives الأساسية
 # TODO: انتقل إلى sel-core::SelKeyPair عند إصدار v1.1
-sel-common = { path = "../SEL/crates/sel-common" }
-
+sel-common = { git = "https://github.com/chokriabouzid-star/SEL.git", tag = "v1.0.0" }
 # ── Ed25519 — مؤقت حتى sel-core v1.1 ────────────────────────────────
 ed25519-dalek = { version = "2.1", features = ["rand_core"] }
 rand          = "0.8"
