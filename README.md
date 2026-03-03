@@ -8,6 +8,11 @@
 
 ---
 
+
+## Demo
+
+[![SEL Deploy Demo](https://asciinema.org/a/LDZVa0z3OVdLt7Zv.svg)](https://asciinema.org/a/LDZVa0z3OVdLt7Zv)
+
 ## The Problem
 
 Every post-mortem starts with the same question:
