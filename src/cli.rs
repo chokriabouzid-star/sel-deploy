@@ -2,8 +2,12 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "sel-deploy")]
-#[command(version = "0.1.0")]
+#[command(version = env!("CARGO_PKG_VERSION"))]
 #[command(about = "Cryptographically chained deployment timeline — built on SEL Core")]
+#[command(
+    after_help = "Data directory: $SEL_DEPLOY_HOME or the platform user data dir.\n\
+Exit codes: 0 ok · 1 failure / broken chain / failed command · 2 usage error"
+)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
@@ -19,15 +23,17 @@ pub enum Commands {
     History(HistoryArgs),
     /// Query deployments around a specific time
     Timeline(TimelineArgs),
-    /// Verify chain integrity
+    /// Verify chain integrity (exits 1 if anything is wrong)
     Verify(VerifyArgs),
     /// Export attestations as JSON
     Export(ExportArgs),
+    /// Rebuild the SQLite index from JSON attestations
+    Rebuild(RebuildArgs),
 }
 
 #[derive(clap::Args)]
 pub struct KeygenArgs {
-    /// Overwrite existing key
+    /// Overwrite existing key (previous public key is archived)
     #[arg(short, long)]
     pub force: bool,
 }
@@ -37,6 +43,13 @@ pub struct RunArgs {
     /// Environment label (e.g. production, staging)
     #[arg(short, long)]
     pub env: Option<String>,
+    /// Explicit compliance claims to record (never inferred).
+    /// Repeatable. Allowed: soc2_cc8, change_management
+    #[arg(long, value_name = "CLAIM")]
+    pub claim: Vec<String>,
+    /// Exit 0 even if the wrapped command failed (still records the real exit code)
+    #[arg(long)]
+    pub ignore_fail: bool,
     /// The deployment command to run
     #[arg(last = true, required = true)]
     pub command: Vec<String>,
@@ -67,10 +80,13 @@ pub struct VerifyArgs {
 
 #[derive(clap::Args)]
 pub struct ExportArgs {
-    /// Export format (json only in v0.1)
+    /// Export format (json only)
     #[arg(short, long, default_value = "json")]
     pub format: String,
     /// Output file (stdout if omitted)
     #[arg(short, long)]
     pub output: Option<String>,
 }
+
+#[derive(clap::Args)]
+pub struct RebuildArgs {}

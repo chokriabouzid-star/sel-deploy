@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-#[allow(dead_code)]
+/// Library-level errors. The CLI maps these onto process exit codes.
 #[derive(Error, Debug)]
 pub enum DeployError {
     #[error("Signing key not found. Run 'sel-deploy keygen' first.")]

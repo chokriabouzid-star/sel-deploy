@@ -1,18 +1,34 @@
 #!/usr/bin/env bash
+# Minimal attested-deploy demo. Uses SEL_DEPLOY_HOME so it never touches
+# your real ~/.local/share/sel-deploy directory.
 set -euo pipefail
 
-SEL_DEPLOY="./target/release/sel-deploy"
-
-# 1. Generate key (first time only)
-if [ ! -f ~/.local/share/sel-deploy/keys/default.pem ]; then
-    $SEL_DEPLOY keygen
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SEL_DEPLOY="${SEL_DEPLOY:-$ROOT/target/release/sel-deploy}"
+if [ ! -x "$SEL_DEPLOY" ]; then
+    SEL_DEPLOY="$ROOT/target/debug/sel-deploy"
+fi
+if [ ! -x "$SEL_DEPLOY" ]; then
+    echo "Build first: cargo build --release" >&2
+    exit 1
 fi
 
-# 2. Run attested deployment
-$SEL_DEPLOY run --env production -- echo "Deploying app v1.0.0"
+export SEL_DEPLOY_HOME="${SEL_DEPLOY_HOME:-$(mktemp -d /tmp/sel-deploy-demo.XXXXXX)}"
+echo "Using SEL_DEPLOY_HOME=$SEL_DEPLOY_HOME"
 
-# 3. View history
-$SEL_DEPLOY history
+if [ ! -f "$SEL_DEPLOY_HOME/keys/default.pem" ]; then
+    "$SEL_DEPLOY" keygen
+fi
 
-# 4. Verify chain
-$SEL_DEPLOY verify
+# Successful deploy (exit 0)
+"$SEL_DEPLOY" run --env production -- echo "Deploying app v1.0.0"
+
+# Failed deploy — the wrapper now exits 7 as well (unless --ignore-fail)
+set +e
+"$SEL_DEPLOY" run --env staging --ignore-fail -- sh -c 'echo boom; exit 7'
+set -e
+
+"$SEL_DEPLOY" history
+"$SEL_DEPLOY" verify
+"$SEL_DEPLOY" rebuild
+echo "OK"

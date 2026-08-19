@@ -1,32 +1,44 @@
 use anyhow::Result;
-use crate::{cli::HistoryArgs, storage::{paths::SelPaths, sqlite::TimelineDb}};
 
-pub async fn execute(args: HistoryArgs) -> Result<()> {
+use crate::cli::HistoryArgs;
+use sel_deploy::storage::paths::SelPaths;
+use sel_deploy::storage::sqlite::{self, TimelineDb};
+use sel_deploy::util::{command_line, ellipsize, prefix};
+
+pub async fn execute(args: HistoryArgs) -> Result<i32> {
     let paths = SelPaths::load()?;
-    let db    = TimelineDb::open(&paths.db)?;
-    let rows  = db.recent(args.limit)?;
+    let db = TimelineDb::open(&paths.db)?;
+    let rows = db.recent(args.limit)?;
 
     if rows.is_empty() {
         println!("No deployments yet. Run: sel-deploy run -- <command>");
-        return Ok(());
+        println!("If JSON files exist, restore the index with: sel-deploy rebuild");
+        return Ok(0);
     }
 
-    println!("{:<26} {:<10} {:<5} {}", "Timestamp (UTC)", "Git", "Exit", "Hash");
-    println!("{}", "─".repeat(72));
+    println!(
+        "{:<20} {:<28} {:<4} Hash",
+        "Timestamp (UTC)", "Command", "Exit"
+    );
+    println!("{}", "─".repeat(88));
     for row in rows.iter().rev() {
-        let ts   = &row.timestamp[..19].replace('T', " ");
-        let git  = row.git_commit.as_deref().unwrap_or("—");
+        let ts = prefix(&row.timestamp, 19).replace('T', " ");
+        let cmd = ellipsize(&command_line(&sqlite::command_from_row(&row.command)), 26);
         let icon = if row.exit_code == 0 { "✔" } else { "✘" };
-        let env  = row.environment.as_deref()
-                       .map(|e| format!("[{}]", e)).unwrap_or_default();
-        let hash_short = &row.attestation_hash[..row.attestation_hash.len().min(28)];
-        println!("{:<26} {:<10} {}  {}... {}", ts, git, icon, hash_short, env);
+        let env = match (row.environment.as_deref(), row.git_commit.as_deref()) {
+            (Some(e), Some(g)) => format!("[{e} @{g}]"),
+            (Some(e), None) => format!("[{e}]"),
+            (None, Some(g)) => format!("[@{g}]"),
+            (None, None) => String::new(),
+        };
+        let hash_short = prefix(&row.attestation_hash, 28);
+        println!("{ts:<20} {cmd:<28} {icon}  {hash_short}... {env}");
     }
-    println!("{}", "─".repeat(72));
-    let total  = db.total()?;
+    println!("{}", "─".repeat(88));
+    let total = db.total()?;
     let oldest = db.oldest_timestamp()?;
     if let Some(ts) = oldest {
-        println!("  Total: {}  │  First: {}", total, &ts[..10]);
+        println!("  Total: {total}  │  First: {}", prefix(&ts, 10));
     }
-    Ok(())
+    Ok(0)
 }

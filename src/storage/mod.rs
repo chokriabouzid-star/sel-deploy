@@ -1,3 +1,3 @@
+pub mod filesystem;
 pub mod paths;
 pub mod sqlite;
-pub mod filesystem;
