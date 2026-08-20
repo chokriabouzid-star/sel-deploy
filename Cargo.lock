@@ -702,8 +702,8 @@ checksum = "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f"
 
 [[package]]
 name = "sel-common"
-version = "1.0.0"
-source = "git+https://github.com/chokriabouzid-star/SEL.git?tag=v1.0.0#2426a15a092c24e88e1b2b545ccea1d79834ada7"
+version = "1.2.0"
+source = "git+https://github.com/chokriabouzid-star/SEL.git?tag=v1.2.1#5cc478a477d7b1ae90b894d24e16a2ff32b52e58"
 dependencies = [
  "hex",
  "serde",
@@ -714,7 +714,7 @@ dependencies = [
 
 [[package]]
 name = "sel-deploy"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "base64",

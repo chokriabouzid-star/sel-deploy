@@ -1,8 +1,8 @@
 [package]
 name        = "sel-deploy"
-version     = "0.2.0"
+version     = "0.2.1"
 edition     = "2021"
-rust-version = "1.74"
+rust-version = "1.85"
 authors     = ["Chokri Bouzid <chokriabouzid@gmail.com>"]
 description = "Cryptographically chained deployment timeline — built on SEL Core"
 license     = "MIT"
@@ -20,8 +20,9 @@ name = "sel-deploy"
 path = "src/main.rs"
 
 [dependencies]
-# SEL Core — canonical JSON + versioned SHA-256 (sel:v1.0:sha256:…)
-sel-common = { git = "https://github.com/chokriabouzid-star/SEL.git", tag = "v1.0.0" }
+# SEL Core crate v1.2.1 — hash *spec* stays sel:v1.0 (CANONICAL_SPEC_VERSION).
+# Pin the git tag, never `main`. Do not feed SEL_VERSION into versioned_hash.
+sel-common = { git = "https://github.com/chokriabouzid-star/SEL.git", tag = "v1.2.1" }
 
 ed25519-dalek = { version = "2.1", features = ["rand_core"] }
 rand          = "0.8"

@@ -2,7 +2,7 @@
 
 **Cryptographically chained deployment timeline — built on SEL Core**
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/chokriabouzid-star/sel-deploy/releases)
+[![Version](https://img.shields.io/badge/version-0.2.1-blue.svg)](https://github.com/chokriabouzid-star/sel-deploy/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-2021-orange.svg)](https://www.rust-lang.org)
 
@@ -162,9 +162,11 @@ Modifying any attestation breaks the chain — detected by `verify`, which
 **fails the process** so CI cannot greenwash it.
 
 Canonicalization and the `sel:v1.0:sha256:` digest are produced by
-[SEL Core v1.0.0](https://github.com/chokriabouzid-star/SEL)
+[SEL Core v1.2.1](https://github.com/chokriabouzid-star/SEL)
 (`sel-common::canonicalize_json_value` + `sel_common::canonical::versioned_hash`).
-v0.1 files keep their original hash path so old signatures still verify.
+The **spec version inside the hash stays `v1.0`** — crate 1.2.1 did not
+change `CANONICAL_SPEC_VERSION`. v0.1 files keep their original hash path
+so old signatures still verify.
 
 Hash format: `sel:v1.0:sha256:<64-char-hex>`
 
@@ -261,9 +263,11 @@ SLSA provenance sit at a different layer. They are complementary.
 
 ## Built On
 
-[SEL Core v1.0.0](https://github.com/chokriabouzid-star/SEL) —
+[SEL Core v1.2.1](https://github.com/chokriabouzid-star/SEL/tree/v1.2.1) —
 `sel-common` provides canonical JSON and versioned SHA-256.
-Ed25519 signing is implemented here (planned: `sel-core` key types).
+Hash format remains `sel:v1.0:sha256:<hex>` (spec 1.0, independent of
+crate version). Ed25519 signing of *deployments* is implemented here and
+is **not** the mission-key path (`~/.sel/ed25519.key`).
 
 ---
 
@@ -288,7 +292,8 @@ See [CHANGELOG.md](CHANGELOG.md).
 | Version | Status | Focus |
 |---------|--------|-------|
 | v0.1.0 | shipped | Local CLI, single-user (integrity gaps — do not rely on it) |
-| v0.2.0 | **now** | Honest records, CI-safe exit codes, rebuild, key archive |
+| v0.2.0 | shipped | Honest records, CI-safe exit codes, rebuild, key archive |
+| v0.2.1 | **now** | SEL Core v1.2.1 pin; hash spec stays `sel:v1.0` |
 | next | planned | GitHub Action, release binaries, remote append-only log |
 
 ---

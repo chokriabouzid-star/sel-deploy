@@ -2,6 +2,22 @@
 
 All notable changes to SEL Deploy are documented here.
 
+## [0.2.1] — 2026-08-19
+
+### Changed
+
+- Pin `sel-common` to SEL Core **v1.2.1** (was v1.0.0). The hash *spec*
+  is unchanged: `CANONICAL_SPEC_VERSION = "1.0"`, so existing v0.2
+  attestations keep verifying. `SEL_VERSION` (now `"1.2.x"`) is **not**
+  mixed into `versioned_hash`.
+- MSRV is **1.85** (required by SEL 1.2 transitive deps / Edition 2024).
+
+### Added
+
+- Golden-hash tests (`tests/golden_sel_hash.rs`) locking command and
+  attestation digests computed under v1.0.0 so a future core bump cannot
+  silently rewrite history.
+
 ## [0.2.0] — 2026-08-18
 
 Integrity release. The v0.1 CLI could not answer “what deployed?”,
